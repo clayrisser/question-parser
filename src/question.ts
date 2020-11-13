@@ -1,33 +1,32 @@
 import _get from 'lodash.get';
-import { Primative } from './types';
+import _set from 'lodash.set';
+import { HashMap, Primative, HashMapValue } from './types';
 
 export default class Question
   implements Omit<IQuestion, 'variable' | 'subquestions'> {
-  default?: Primative;
+  readonly default?: Primative;
 
-  description?: string;
+  readonly description?: string;
 
-  group: string;
+  readonly group: string;
 
-  label: string;
+  readonly label: string;
 
-  options?: Primative[];
+  readonly options?: Primative[];
 
-  parent?: Question;
+  readonly parent?: Question;
 
-  required?: boolean;
+  readonly required?: boolean;
 
-  showIf?: string;
+  readonly showIf?: string;
 
-  showSubquestionIf?: Primative;
+  readonly showSubquestionIf?: Primative;
 
-  subquestions: Question[] = [];
+  readonly subquestions: Question[] = [];
 
-  type: QuestionType;
+  readonly type: QuestionType;
 
-  value?: Primative;
-
-  variable: string[];
+  readonly variable: string[];
 
   constructor(question: IQuestion) {
     this.default = question.default;
@@ -47,15 +46,20 @@ export default class Question
     this.subquestions.push(question);
   }
 
-  show() {
+  isEnabled(values: HashMap) {
+    const value: HashMapValue = _get(values, this.variable);
+    const parentValue: HashMapValue | undefined = this.parent
+      ? _get(values, this.parent.variable)
+      : undefined;
     return (
-      !this.parent?.showSubquestionIf ||
-      this.parent?.showSubquestionIf === this.parent?.value
+      (!this.showIf || this.showIf) &&
+      (!this.parent?.showSubquestionIf ||
+        this.parent?.showSubquestionIf === parentValue)
     );
   }
 
-  setValue(value: Primative) {
-    this.value = value;
+  setValue(values: HashMap, value: Primative) {
+    _set(values, this.variable, value);
   }
 }
 
