@@ -1,4 +1,8 @@
 import ConditionalInterpreter, {
+  ExpressionNode,
+  OperatorNode,
+  ProgramNode,
+  StringNode,
   Token,
   TokenType
 } from './conditionalInterpreter';
@@ -29,8 +33,47 @@ describe('new ConditionalInterpreter()', () => {
 
   it('should parse', () => {
     const conditionalInterpreter = new ConditionalInterpreter(
-      '(hel.lo=world&&(howdy!=te-xas))||f00=bar'
+      '(hel.lo=world&&(howdy!=te-xas))'
     );
-    conditionalInterpreter.parse();
+    const ast = conditionalInterpreter.parse();
+    expect(ast).toMatchObject(
+      new ProgramNode([
+        new ExpressionNode(
+          new StringNode('hel.lo'),
+          new OperatorNode('='),
+          new StringNode('world')
+        ),
+        new ExpressionNode(
+          new StringNode('howdy'),
+          new OperatorNode('!='),
+          new StringNode('te-xas')
+        )
+      ])
+    );
+  });
+
+  it('should parse without parens', () => {
+    const conditionalInterpreter = new ConditionalInterpreter(
+      '((hel.lo=world)&&(howdy!=te-xas))'
+    );
+    console.log('TOKENS');
+    console.log(JSON.stringify(conditionalInterpreter.tokens, null, 2));
+    const ast = conditionalInterpreter.parse();
+    console.log('AST');
+    console.log(JSON.stringify(ast, null, 2));
+    expect(ast).toMatchObject(
+      new ProgramNode([
+        new ExpressionNode(
+          new StringNode('hel.lo'),
+          new OperatorNode('='),
+          new StringNode('world')
+        ),
+        new ExpressionNode(
+          new StringNode('howdy'),
+          new OperatorNode('!='),
+          new StringNode('te-xas')
+        )
+      ])
+    );
   });
 });
