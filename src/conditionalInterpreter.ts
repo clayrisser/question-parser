@@ -14,6 +14,45 @@ export default class ConditionalInterpreter {
     let current = 0;
     const walk = (): Node => {
       const token = this.tokens[current];
+      switch (token.type) {
+        case TokenType.Paren: {
+          const expressionNode = new ExpressionNode();
+          current++;
+          const left = walk();
+          if (
+            left.type !== NodeType.String &&
+            left.type !== NodeType.Expression
+          ) {
+            throw new Error(
+              `${left.type} is not a valid left of an expression`
+            );
+          }
+          expressionNode.left = left;
+          const operator = walk() as OperatorNode;
+          if (operator.type !== NodeType.Operator || !operator.value) {
+            throw new Error(
+              `${operator.type} ${operator.value} is not a valid operator`
+            );
+          }
+          expressionNode.operator = operator;
+          const right = walk();
+          if (
+            right.type !== NodeType.String &&
+            right.type !== NodeType.Expression
+          ) {
+            throw new Error(
+              `${right.type} is not a valid right of an expression`
+            );
+          }
+          expressionNode.right = right;
+        }
+        case TokenType.String: {
+          current++;
+          return new StringNode(token.value);
+        }
+        case TokenType.Operator: {
+        }
+      }
       current++;
       throw new Error(`unknown token ${token.type}`);
     };
@@ -108,31 +147,35 @@ export enum NodeType {
 }
 
 export abstract class Node {
-  abstract type: NodeType;
+  abstract readonly type: NodeType;
 }
 
 export class ExpressionNode extends Node {
-  type = NodeType.Expression;
+  readonly type = NodeType.Expression;
 
-  constructor(
-    public left: Node,
-    public operator: OperatorNode,
-    public right: Node
-  ) {
+  left?: Node;
+
+  operator?: OperatorNode;
+
+  right?: Node;
+}
+
+export class OperatorNode extends Node {
+  readonly type = NodeType.Operator;
+
+  value?: string;
+}
+
+export class StringNode extends Node {
+  readonly type = NodeType.String;
+
+  constructor(public readonly value: string) {
     super();
   }
 }
 
-export class OperatorNode extends Node {
-  type = NodeType.Operator;
-}
-
-export class StringNode extends Node {
-  type = NodeType.String;
-}
-
 export class ProgramNode extends Node {
-  type = NodeType.Program;
+  readonly type = NodeType.Program;
 
   body: Node[] = [];
 }
