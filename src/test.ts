@@ -1,6 +1,5 @@
 import ConditionalInterpreter from './conditionalInterpreter';
 
-const conditionalInterpreter = new ConditionalInterpreter(
-  '(hel.lo=world&&(howdy!=te-xas))||f00=bar'
-);
+const conditionalInterpreter = new ConditionalInterpreter('hello=world');
+conditionalInterpreter.parse();
 console.log(conditionalInterpreter.tokens);

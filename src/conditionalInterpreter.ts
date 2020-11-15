@@ -6,102 +6,132 @@ export default class ConditionalInterpreter {
   static STRING = /[^)!=&|]/;
 
   constructor(public readonly input: string) {
-    this.tokens = ConditionalInterpreter.tokenize(input);
+    this.tokens = ConditionalInterpreter.tokenize(
+      ConditionalInterpreter.parenthesize(input)
+    );
+  }
+
+  /**
+   * based on Fortran I compiler order of operations
+   * http://polaris.cs.uiuc.edu/publications/c1070.pdf
+   */
+  static parenthesize(input: string) {
+    let output = '(((';
+    let current = 0;
+    const next = (times = 1): [string, string | undefined] => {
+      current += times;
+      return [input[current], input[current + 1]];
+    };
+    while (current < input.length) {
+      const [char, nextChar] = next(0);
+      switch (char) {
+        case '(': {
+          output += '(((';
+          next();
+          continue;
+        }
+        case ')': {
+          output += ')))';
+          next();
+          continue;
+        }
+      }
+      switch (`${char}${nextChar}`) {
+        case '&&': {
+          output += ')&&(';
+          next(2);
+          continue;
+        }
+        case '||': {
+          output += '))||((';
+          next(2);
+          continue;
+        }
+      }
+      output += char;
+      next();
+    }
+    output += ')))';
+    return output;
   }
 
   parse() {
-    const ast = new ProgramNode();
     let current = 0;
-    const state: ParseState = { newExpression: false };
-    const walk = (): Node | undefined => {
-      let token = this.tokens[current];
-      if (state.newExpression) {
-        throw new Error('starting new expression without parens');
+    const next = (times = 1): [Token | undefined, Token | undefined] => {
+      current += times;
+      return [this.tokens[current], this.tokens[current + 1]];
+    };
+    console.log(JSON.stringify(this.tokens, null, 2));
+    const walk = (): Node => {
+      let [token, nextToken] = next(0);
+      console.log(current, token, nextToken);
+      if (token?.type === TokenType.Paren && token?.value === '(') {
+        const expression: Node[] = [];
+        [token, nextToken] = next();
+        while (
+          token?.type !== TokenType.Paren ||
+          (token.type === TokenType.Paren && token.value !== ')')
+        ) {
+          expression.push(walk());
+          [token, nextToken] = next(0);
+          if (typeof token === 'undefined') {
+            throw new Error('token cannot be undefined');
+          }
+        }
+        console.log('E', expression);
+        if (expression.length === 1) {
+          // maybe make it better
+          return expression[0];
+        } else if (expression.length < 2) {
+          throw new Error(
+            `expression '${expression
+              .map((node: Node) => node.value)
+              .join(' ')}' is invalid`
+          );
+        }
+        const [left, , right] = expression;
+        const operator = expression[1] as OperatorNode;
+        if (left.type !== NodeType.String) {
+          throw new Error(
+            `left of type ${left.type} should be type ${NodeType.String}`
+          );
+        }
+        if (operator.type !== NodeType.Operator) {
+          throw new Error(
+            `operator of type ${operator.type} should be type ${NodeType.Operator}`
+          );
+        }
+        return new ExpressionNode(left, operator, right || null);
       }
-      const getExpressionNode = (): Node | undefined => {
-        const expressionNode = new ExpressionNode();
-        const left = walk();
-        if (
-          left?.type !== NodeType.String &&
-          left?.type !== NodeType.Expression
-        ) {
-          throw new Error(
-            `${left?.type} ${left?.value} is not a valid left of an expression`
-          );
-        }
-        expressionNode.left = left;
-        const operator = walk() as OperatorNode;
-        if (operator.type !== NodeType.Operator || !operator.value) {
-          throw new Error(
-            `${operator.type} ${operator.value} is not a valid operator`
-          );
-        }
-        expressionNode.operator = operator;
-        const right = walk();
-        if (
-          right?.type !== NodeType.String &&
-          right?.type !== NodeType.Expression
-        ) {
-          throw new Error(
-            `${right?.type} ${right?.value} is not a valid right of an expression`
-          );
-        }
-        expressionNode.right = right;
-        return expressionNode;
-      };
-      switch (token.type) {
-        case TokenType.Paren: {
-          if (token.value === '(') {
-            token = this.tokens[++current];
-            const expressionNode = getExpressionNode();
-            token = this.tokens[++current];
-            if (token.type !== TokenType.Paren && token.value !== ')') {
-              throw new Error('expression must close');
-            }
-            return expressionNode;
-          }
-          const nextToken = this.tokens[current + 1];
-          if (nextToken?.type === TokenType.String) {
-            state.newExpression = true;
-          }
-          ++current;
-          break;
-        }
+      switch (token?.type) {
         case TokenType.String: {
-          current++;
-          return new StringNode(token.value);
+          next();
+          return new StringNode(token?.value || '');
         }
         case TokenType.Operator: {
-          const operatorNode = new OperatorNode(token.value);
-          const nextToken = this.tokens[current + 1];
-          if (
-            token.value === '&&' ||
-            (token.value === '||' && nextToken?.type === TokenType.String)
-          ) {
-            state.newExpression = true;
-          }
-          current++;
-          return operatorNode;
+          next();
+          return new OperatorNode(token?.value || '');
         }
       }
+      throw new Error(
+        `token type ${token?.type} with value ${token?.value} is invalid`
+      );
     };
-    while (current < this.tokens.length) {
-      const node = walk();
-      if (node) ast.body.push(node);
-    }
-    return ast;
+    const result = walk();
+    console.log('R', result);
+    return result;
   }
 
   static tokenize(input: string): Token[] {
     const tokens: Token[] = [];
     const inputArray = [...input];
     let current = 0;
-    const next = (times = 1): [string, string] => {
+    const next = (times = 1): [string, string | undefined] => {
       current += times;
       return [inputArray[current], inputArray[current + 1]];
     };
     while (current < inputArray.length) {
-      let [char, peek] = next(0);
+      let [char, nextChar] = next(0);
       if (typeof char === 'undefined') break;
       switch (char) {
         case '(': {
@@ -120,21 +150,21 @@ export default class ConditionalInterpreter {
           continue;
         }
         case '!': {
-          if (peek === '=') {
+          if (nextChar === '=') {
             next(2);
             tokens.push(new Token(TokenType.Operator, Operator.NotEqual));
             continue;
           }
         }
         case '&': {
-          if (peek === '&') {
+          if (nextChar === '&') {
             next(2);
             tokens.push(new Token(TokenType.Operator, Operator.And));
             continue;
           }
         }
         case '|': {
-          if (peek === '|') {
+          if (nextChar === '|') {
             next(2);
             tokens.push(new Token(TokenType.Operator, Operator.Or));
             continue;
@@ -147,7 +177,7 @@ export default class ConditionalInterpreter {
         ConditionalInterpreter.STRING.test(char)
       ) {
         value += char;
-        [char, peek] = next();
+        [char, nextChar] = next();
       }
       if (value.length) tokens.push(new Token(TokenType.String, value));
       continue;
@@ -173,7 +203,6 @@ export enum TokenType {
 export enum NodeType {
   Expression = 'EXPRESSION',
   Operator = 'OPERATOR',
-  Program = 'PROGRAM',
   String = 'STRING'
 }
 
@@ -190,9 +219,9 @@ export class ExpressionNode extends Node {
 
   operator?: OperatorNode;
 
-  right?: Node;
+  right?: Node | null;
 
-  constructor(left?: Node, operator?: OperatorNode, right?: Node) {
+  constructor(left?: Node, operator?: OperatorNode, right?: Node | null) {
     super();
     this.left = left;
     this.operator = operator;
@@ -225,17 +254,6 @@ export class StringNode extends Node {
 
   constructor(public readonly value: string) {
     super();
-  }
-}
-
-export class ProgramNode extends Node {
-  readonly type = NodeType.Program;
-
-  body: Node[];
-
-  constructor(body: Node[] = []) {
-    super();
-    this.body = body;
   }
 }
 
