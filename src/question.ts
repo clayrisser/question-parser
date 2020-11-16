@@ -14,19 +14,19 @@ export default class Question
 
   readonly options?: Primative[];
 
-  readonly parent?: Question;
-
   readonly required?: boolean;
 
   readonly showIf?: string;
 
   readonly showSubquestionIf?: Primative;
 
-  readonly subquestions: Question[] = [];
-
   readonly type: QuestionType;
 
   readonly variable: string[];
+
+  parent?: Question;
+
+  subquestions: Question[] = [];
 
   constructor(question: IQuestion) {
     this.default = question.default;
