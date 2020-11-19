@@ -5,4 +5,3 @@ export { default as ShowIfParser } from './showIfParser';
 export * from './parse';
 export * from './question';
 export * from './questions';
-export * from './showIfParser';
