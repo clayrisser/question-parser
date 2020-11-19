@@ -17,10 +17,14 @@ export function parseQuestions(
       type: question.type,
       variable: question.variable
     });
-    if (parentQuestion) parsedQuestion.addSubquestion(parsedQuestion);
+    if (parentQuestion) {
+      console.log('adding subquestion', parsedQuestion);
+      parsedQuestion.addSubquestion(parsedQuestion);
+    }
     if (question.subquestions) {
       parseQuestions(question.subquestions, parsedQuestion);
     }
+    questions.push(parsedQuestion);
     return questions;
   }, []);
 }
