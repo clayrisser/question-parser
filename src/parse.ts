@@ -1,6 +1,9 @@
 import Question, { IQuestion } from './question';
 
-export function parseQuestions(questions: IQuestion[]): Question[] {
+export function parseQuestions(
+  questions: IQuestion[],
+  parentQuestion?: Question
+): Question[] {
   return questions.reduce((questions: Question[], question: IQuestion) => {
     const parsedQuestion = new Question({
       default: question.default,
@@ -14,10 +17,10 @@ export function parseQuestions(questions: IQuestion[]): Question[] {
       type: question.type,
       variable: question.variable
     });
+    if (parentQuestion) parsedQuestion.addSubquestion(parsedQuestion);
     if (question.subquestions) {
-      parsedQuestion.subquestions = parseQuestions(question.subquestions);
+      parseQuestions(question.subquestions, parsedQuestion);
     }
-    questions.push(parsedQuestion);
     return questions;
   }, []);
 }
