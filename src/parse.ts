@@ -18,8 +18,7 @@ export function parseQuestions(
       variable: question.variable
     });
     if (parentQuestion) {
-      console.log('adding subquestion', parsedQuestion);
-      parsedQuestion.addSubquestion(parsedQuestion);
+      parentQuestion.addSubquestion(parsedQuestion);
     }
     if (question.subquestions) {
       parseQuestions(question.subquestions, parsedQuestion);
