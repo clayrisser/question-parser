@@ -1,6 +1,6 @@
 {
   "name": "question-parser",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "parse rancher compatible questions",
   "keywords": [
     "question-parser",
@@ -46,10 +46,10 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
+    "bullean": "^0.0.3",
     "core-js": "^3.7.0",
     "lodash.get": "^4.4.2",
-    "lodash.set": "^4.3.2",
-    "pegjs": "^0.10.0"
+    "lodash.set": "^4.3.2"
   },
   "devDependencies": {
     "@babel/cli": "^7.12.1",

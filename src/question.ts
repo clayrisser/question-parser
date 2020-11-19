@@ -1,3 +1,4 @@
+import Bullean from 'bullean';
 import _get from 'lodash.get';
 import _set from 'lodash.set';
 import { HashMap, Primative, HashMapValue } from './types';
@@ -47,12 +48,12 @@ export default class Question
   }
 
   isEnabled(values: HashMap) {
-    const value: HashMapValue = _get(values, this.variable);
+    const bullean = new Bullean(values);
     const parentValue: HashMapValue | undefined = this.parent
       ? _get(values, this.parent.variable)
       : undefined;
     return (
-      (!this.showIf || this.showIf) &&
+      (!this.showIf || bullean.eval(this.showIf)) &&
       (!this.parent?.showSubquestionIf ||
         this.parent?.showSubquestionIf === parentValue)
     );
@@ -72,7 +73,7 @@ export interface IQuestion {
   required?: boolean;
   showIf?: string;
   showSubquestionIf?: Primative;
-  subquestions?: IQuestion[];
+  subquestions?: Question[];
   type: QuestionType;
   variable: string;
 }
