@@ -9,6 +9,7 @@ LOCKFILE_LINT := node_modules/.bin/lockfile-lint
 MAJESTIC := node_modules/.bin/majestic
 PRETTIER := node_modules/.bin/prettier
 TSC := node_modules/.bin/tsc
+WEBPACK := node_modules/.bin/webpack
 COLLECT_COVERAGE_FROM := ["src/**/*.{js,jsx,ts,tsx}"]
 
 BUILD_DEPS := $(patsubst src/%.ts,lib/%.d.ts,$(shell find src -name '*.ts' -not -name '*.d.ts')) \
@@ -119,12 +120,15 @@ build: _build ~build
 ~build: ~test $(BUILD_TARGET)
 +build: _build $(BUILD_TARGET)
 _build:
-	-@rm -rf lib $(NOFAIL)
+	-@rm -rf es lib $(NOFAIL)
 lib:
-	-@rm -r node_modules/.tmp/lib $(NOFAIL)
-	@$(BABEL) src -d lib --extensions '.ts,.tsx' --source-maps
+	-@rm -r node_modules/.tmp/lib node_modules/.tmp/lib $(NOFAIL)
+	@$(WEBPACK)
+	@$(BABEL) --env-name umd src -d lib --extensions '.ts,.tsx' --source-maps
+	@$(BABEL) --env-name esm src -d es --extensions '.ts,.tsx' --source-maps
 	@$(TSC) -d --emitDeclarationOnly
 	@cp -r node_modules/.tmp/lib/src/. lib $(NOFAIL)
+	@cp -r node_modules/.tmp/es/src/. es $(NOFAIL)
 
 .PHONY: coverage
 coverage: ~lint

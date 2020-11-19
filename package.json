@@ -1,6 +1,6 @@
 {
   "name": "question-parser",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "parse rancher compatible questions",
   "keywords": [
     "question-parser",
@@ -20,6 +20,7 @@
     "url": "https://codejam.ninja"
   },
   "files": [
+    "es",
     "lib"
   ],
   "main": "lib/index.js",
@@ -46,7 +47,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "bullean": "^0.0.4",
+    "bullean": "^0.0.5",
     "core-js": "^3.7.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2"
@@ -67,7 +68,9 @@
     "@types/pegjs": "^0.10.2",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
+    "babel-loader": "^8.2.1",
     "babel-plugin-inline-import": "^3.0.0",
+    "babel-plugin-macros": "^2.8.0",
     "babel-plugin-module-resolver": "^4.0.0",
     "cspell": "^4.1.5",
     "eslint": "^7.13.0",
@@ -79,17 +82,23 @@
     "lockfile-lint": "^4.3.7",
     "majestic": "^1.8.0",
     "prettier": "^2.1.2",
-    "typescript": "^4.0.5"
+    "typescript": "^4.0.5",
+    "webpack": "^5.6.0",
+    "webpack-cli": "^4.2.0"
   },
   "engines": {
     "node": ">=6.0.0"
   },
   "eslintIgnore": [
+    "dist",
+    "es",
     "lib"
   ],
   "jest": {
     "testRegex": "((/(tests|__tests__)((/|/[^_.\n][^/\n]*(/[^_.\n][^/\n]+)*/)[^_.\n][^/\n]*))|((/|/.*/)(([^_.\n][^/\n]*.(spec|test))|(spec|test)))).[jt]sx?$",
     "testPathIgnorePatterns": [
+      "dist",
+      "es",
       "lib"
     ],
     "testEnvironment": "node",
