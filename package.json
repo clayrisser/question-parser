@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@babel/runtime": "^7.12.5",
-    "bullean": "^0.0.3",
+    "bullean": "^0.0.4",
     "core-js": "^3.7.0",
     "lodash.get": "^4.4.2",
     "lodash.set": "^4.3.2"

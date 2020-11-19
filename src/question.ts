@@ -73,7 +73,7 @@ export interface IQuestion {
   required?: boolean;
   showIf?: string;
   showSubquestionIf?: Primative;
-  subquestions?: Question[];
+  subquestions?: IQuestion[];
   type: QuestionType;
   variable: string;
 }
