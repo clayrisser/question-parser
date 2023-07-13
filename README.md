@@ -2,6 +2,8 @@
 
 [![GitHub stars](https://img.shields.io/github/stars/codejamninja/question-parser.svg?style=social&label=Stars)](https://github.com/codejamninja/question-parser)
 
+![](assets/question-parser.png)
+
 > parse rancher compatible questions
 
 Please ★ this repo if you found it useful ★ ★ ★
