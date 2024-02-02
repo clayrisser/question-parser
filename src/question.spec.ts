@@ -78,6 +78,109 @@ describe('new Question().isEnabled()', () => {
       })
     ).toBe(true);
   });
+
+  const mainQuestion = new Question({
+    variable: 'config.onlyoffice.enabled',
+    description: '',
+    type: QuestionType.Boolean,
+    required: false,
+    label: 'enabled',
+    group: 'OnlyOffice',
+    showSubquestionIf: true
+  });
+
+  mainQuestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.hostname',
+      description: '',
+      type: QuestionType.String,
+      required: false,
+      label: 'hostname'
+    })
+  );
+
+  mainQuestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.replicas',
+      description: '',
+      type: QuestionType.Int,
+      required: true,
+      label: 'replicas'
+    })
+  );
+
+  const resourcesEnabledSubquestion = new Question({
+    group: 'OnlyOffice',
+    variable: 'config.onlyoffice.resources.enabled',
+    description: '',
+    type: QuestionType.Enum,
+    options: ['defaults', 'custom', 'false'],
+    required: true,
+    label: 'resources defaults',
+    showSubquestionIf: 'custom'
+  });
+
+  resourcesEnabledSubquestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.resources.requests.cpu',
+      description: '',
+      type: QuestionType.String,
+      required: true,
+      label: 'resources requests cpu'
+    })
+  );
+
+  resourcesEnabledSubquestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.resources.requests.memory',
+      description: '',
+      type: QuestionType.String,
+      required: true,
+      label: 'resources requests memory'
+    })
+  );
+
+  resourcesEnabledSubquestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.resources.limits.cpu',
+      description: '',
+      type: QuestionType.String,
+      required: true,
+      label: 'resources limits cpu'
+    })
+  );
+
+  resourcesEnabledSubquestion.addSubquestion(
+    new Question({
+      group: 'OnlyOffice',
+      variable: 'config.onlyoffice.resources.limits.memory',
+      description: '',
+      type: QuestionType.String,
+      required: true,
+      label: 'resources limits memory'
+    })
+  );
+
+  mainQuestion.addSubquestion(resourcesEnabledSubquestion);
+
+  it('should detect if enabled showSubquestionIf true', () => {
+    expect(
+      resourcesEnabledSubquestion.isEnabled({
+        config: {
+          onlyoffice: {
+            resources: {
+              enabled: 'custom'
+            }
+          }
+        }
+      })
+    ).toBe(true);
+  });
 });
 
 export default null;

@@ -4,7 +4,8 @@ import _set from 'lodash.set';
 import { HashMap, Primative, HashMapValue } from './types';
 
 export default class Question
-  implements Omit<IQuestion, 'variable' | 'subquestions'> {
+  implements Omit<IQuestion, 'variable' | 'subquestions'>
+{
   readonly default?: Primative;
 
   readonly description?: string;
