@@ -19,7 +19,6 @@ describe('parseQuestions()', () => {
         ]
       }
     ];
-
     expect(parseQuestions(questions)).toMatchObject([
       {
         group: 'Config',

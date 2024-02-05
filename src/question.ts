@@ -56,7 +56,9 @@ export default class Question
     return (
       (!this.showIf || bullean.eval(this.showIf)) &&
       (!this.parent?.showSubquestionIf ||
-        this.parent?.showSubquestionIf === parentValue)
+        this.parent?.showSubquestionIf === parentValue) &&
+      (!this.showSubquestionIf ||
+        this.showSubquestionIf === _get(values, this.variable))
     );
   }
 

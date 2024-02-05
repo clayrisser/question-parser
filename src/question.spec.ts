@@ -173,6 +173,7 @@ describe('new Question().isEnabled()', () => {
       resourcesEnabledSubquestion.isEnabled({
         config: {
           onlyoffice: {
+            enabled: true,
             resources: {
               enabled: 'custom'
             }
