@@ -21,3 +21,8 @@ indent_style = tab
 [*.mk]
 charset = utf-8
 indent_style = tab
+
+[Mkpmfile]
+charset = utf-8
+indent_size = 4
+indent_style = tab
